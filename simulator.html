@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patuxent County Civic Simulator · ELM Community Resources</title>
+<meta name="description" content="A civic infrastructure decision game. Weigh a data center proposal while grid, water, trust, and economic meters shift.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js" defer></script>
+<style>
+  .intro { padding: 36px 0 4px; }
+  .intro p { max-width: 46em; }
+
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px; margin: 18px 0; }
+  .panel.dark { background: var(--navy); color: #fff; border: 0; }
+  .panel.dark h2, .panel.dark h3 { color: #fff; }
+  .panel h2 { margin-top: 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spread { justify-content: space-between; }
+  .muted { color: var(--muted); }
+  .small { font-size: .92rem; }
+  .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* Mode picker */
+  .modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin: 20px 0; }
+  .mode-card { text-align: left; font: inherit; cursor: pointer; background: var(--paper); border: 2px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); border-top: 8px solid var(--accent); color: inherit; }
+  .mode-card:hover { border-color: var(--navy); border-top-color: var(--accent); }
+  .mode-card p { color: var(--muted); margin-bottom: .6em; }
+  .mode-card .meta { font-weight: 700; color: var(--navy); font-size: .95rem; }
+
+  /* Meters */
+  .meters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .meter { background: var(--paper); border-radius: 14px; padding: 12px 14px; border: 2px solid var(--line); }
+  .meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .meter-name { font-family: "Oswald", sans-serif; font-size: 1.05rem; color: var(--navy); }
+  .meter-val { font-family: "Oswald", sans-serif; font-size: 1.6rem; color: var(--navy); }
+  .segs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin: 6px 0 4px; }
+  .segs i { height: 12px; border-radius: 3px; background: var(--line); }
+  .ends { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .adj { display: flex; gap: 6px; margin-top: 8px; }
+  .adj button { flex: 1; font: inherit; font-weight: 700; border: 1px solid var(--line); background: #fff; border-radius: 8px; cursor: pointer; min-height: 32px; color: var(--navy); }
+  .meter.bump { animation: bump .5s ease; }
+  @keyframes bump { 50% { transform: scale(1.04); } }
+  @media (max-width: 760px) { .meters { grid-template-columns: 1fr 1fr; } }
+
+  .alerts { margin-top: 12px; display: grid; gap: 8px; }
+  .alert { border-radius: 10px; padding: 10px 14px; font-size: .98rem; background: #fdecea; border-left: 5px solid #c0392b; }
+  .alert.warn { background: #fff6dc; border-left-color: var(--gold); }
+
+  /* Cards */
+  .game-card { background: var(--paper); color: var(--ink); border-radius: 18px; padding: 22px; border: 3px solid var(--navy); max-width: 640px; margin: 0 auto; }
+  .game-card .ctype { display: inline-block; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; color: #fff; background: var(--navy); }
+  .ctype.Infrastructure { background: #b58a00; }
+  .ctype.Political { background: var(--navy); }
+  .ctype.Community { background: #b0413e; }
+  .ctype.Developer { background: #555; }
+  .ctype.Choice { background: var(--green); }
+  .game-card h3 { font-size: 1.6rem; margin: 12px 0 8px; }
+  .fx { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .fx span { font-weight: 700; padding: 4px 10px; border-radius: 8px; font-size: .95rem; background: var(--cream); }
+  .fx .up { color: #1f6b2c; } .fx .down { color: #a3261b; }
+  .discuss { background: var(--cream); border-radius: 12px; padding: 12px 14px; margin-top: 12px; }
+  .discuss b { color: var(--navy); }
+  .opts { display: grid; gap: 10px; margin-top: 14px; }
+  .opt-btn { text-align: left; font: inherit; cursor: pointer; background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: 44px; }
+  .opt-btn:hover { border-color: var(--navy); }
+  .opt-btn.suggest { border-color: var(--gold); }
+  .opt-btn small { display: block; color: var(--muted); }
+
+  .deck-back { max-width: 640px; margin: 0 auto; border-radius: 18px; background: var(--navy-deep); border: 3px dashed rgba(255,255,255,.3); color: #fff; text-align: center; padding: 40px 20px; }
+  .deck-back .display { color: var(--gold); font-size: 1.6rem; margin-bottom: 6px; }
+
+  .core { border-left: 5px solid var(--gold); padding: 10px 14px; background: rgba(233,185,73,.12); border-radius: 0 10px 10px 0; margin-top: 14px; }
+  .askfirst { display: inline-block; background: var(--navy); color: #fff; border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: .9rem; }
+
+  /* Choice hand */
+  .hand { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 10px; }
+  .hand button { font: inherit; text-align: left; cursor: pointer; background: #fff; border: 2px solid var(--green); border-radius: 12px; padding: 12px; min-height: 44px; }
+  .hand button b { color: var(--green); display: block; }
+  .hand button:disabled { opacity: .45; cursor: not-allowed; border-style: dashed; }
+
+  /* Roles */
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+  .role { display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
+  .role input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--navy); }
+  .role b { display: block; color: var(--navy); }
+  .role span { font-size: .92rem; color: var(--muted); line-height: 1.4; }
+  .role.on { border-color: var(--navy); }
+  .seg-choice { display: inline-flex; border: 2px solid var(--navy); border-radius: 10px; overflow: hidden; }
+  .seg-choice button { font: inherit; font-weight: 700; border: 0; background: #fff; color: var(--navy); padding: 8px 16px; cursor: pointer; min-height: 44px; }
+  .seg-choice button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+
+  .steps { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .steps span { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--line); color: var(--navy); }
+  .steps span.on { background: var(--gold); color: var(--navy-deep); }
+
+  /* Tally */
+  .tally-grid { display: grid; gap: 10px; margin-top: 14px; }
+  .tally-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .tally-row .lbl b { display: block; color: var(--navy); }
+  .tally-row .lbl small { color: var(--muted); }
+  .counter { display: flex; align-items: center; gap: 8px; }
+  .counter button { width: 40px; height: 40px; border-radius: 10px; border: 2px solid var(--navy); background: #fff; color: var(--navy); font: inherit; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
+  .counter output { font-family: "Oswald", sans-serif; font-size: 1.5rem; min-width: 2ch; text-align: center; color: var(--navy); }
+
+  textarea, input[type=text], select { font: inherit; font-size: 1rem; width: 100%; padding: 10px 12px; border-radius: 10px; border: 2px solid var(--line); background: #fff; }
+  label.field { display: block; font-weight: 700; color: var(--navy); margin: 12px 0 6px; }
+  .cond { display: grid; grid-template-columns: 1fr 220px auto; gap: 8px; margin-bottom: 8px; }
+  @media (max-width: 640px) { .cond { grid-template-columns: 1fr; } }
+
+  table.log { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  table.log th, table.log td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.log th { color: var(--navy); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+  .table-scroll { overflow-x: auto; }
+
+  .progress-dots { display: flex; gap: 6px; justify-content: center; margin: 14px 0 0; }
+  .progress-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .progress-dots i.on { background: var(--gold); }
+  .link-btn { background: none; border: 0; font: inherit; color: var(--navy); text-decoration: underline; cursor: pointer; padding: 6px 0; }
+  @media print {
+    .site-header, .site-footer, .intro, .noprint { display: none !important; }
+    body { background: #fff; }
+    .panel { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">ELM</span>
+      <span class="brand-text">Community Resources<small>Civic Governance Initiative</small></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="site-nav" id="nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="would-you-rather.html">Would You Rather</a></li>
+        <li><a href="simulator.html" aria-current="page">Civic Simulator</a></li>
+        <li><a href="right-to-understand.html">Right to Understand</a></li>
+        <li><a href="links.html">Helpful Links</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <span class="eyebrow" style="color:var(--green)">Civic Infrastructure Decision Game</span>
+    <h1>Patuxent County</h1>
+    <p>A data center wants to come to Patuxent County. It promises investment, tax revenue, and jobs, and it needs a lot of electricity, water, and public trust. Work together, ask questions, and decide what the county should do. There's no single right outcome. What matters is whether your group can explain its choice.</p>
+  </section>
+
+  <div id="app" aria-live="polite"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="motto">Clear information. Meaningful participation.<br>Better decisions. Stronger communities.</div>
+    <div>ELM Lab · CEAMLS · Morgan State University<br>
+      <a href="https://shelley-neumeister.github.io/mdcgt-website/">Data Center Tracker</a> ·
+      <a href="https://shelley-neumeister.github.io/elm-fellows-website/">ELM Research Fellows</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  /* ================= CONTENT ================= */
+  var METERS = [
+    { k: "grid",  name: "Grid Capacity",    lo: "Critical", hi: "Stable", color: "var(--grid)",  zero: "The grid can no longer reliably serve the community." },
+    { k: "water", name: "Water Stress",     lo: "Severe",   hi: "Low",    color: "var(--water)", zero: "Water stress is severe. Cooling needs now compete directly with homes and farms." },
+    { k: "trust", name: "Public Trust",     lo: "Low",      hi: "High",   color: "var(--trust)", zero: "Trust has collapsed. Residents no longer trust the process or each other." },
+    { k: "econ",  name: "Economic Benefit", lo: "Low",      hi: "High",   color: "var(--econ)",  zero: "The community is seeing no real, shared benefit." }
+  ];
+  var MNAME = {}; METERS.forEach(function (m) { MNAME[m.k] = m.name; });
+
+  var ROLES = [
+    { k: "gov",   name: "Local Government",          d: "Balance growth, services, and community needs. You hold permit authority but answer to voters." },
+    { k: "util",  name: "Utilities Provider",        d: "Provide reliable power and water. You understand grid and water constraints better than anyone in the room." },
+    { k: "dev",   name: "Developer",                 d: "Build responsibly and deliver economic value. Your commitments are only as good as their enforcement." },
+    { k: "res",   name: "Residents",                 d: "Protect quality of life, housing, schools, and safety. You bear the longest-term consequences." },
+    { k: "env",   name: "Environmental Advocates",   d: "Protect natural resources and future generations. You think in decades, not quarters." },
+    { k: "uni",   name: "Researchers / University",  d: "Provide independent analysis. You have no financial stake, so use that independence." },
+    { k: "labor", name: "Labor / Workforce",         d: "Create good jobs and local opportunity. A job that doesn't go to a local resident isn't a local benefit." }
+  ];
+
+  // Event cards 1–20 (Patuxent County Event Cards, Draft v1)
+  var EVENTS = [
+    { id: 1,  t: "Infrastructure", title: "Peak Demand Crisis", text: "A heat wave pushes the regional grid to capacity. The data center's load is cited as a contributing factor.", fx: { grid: -2, trust: -1 } },
+    { id: 2,  t: "Infrastructure", title: "Substation Upgrade Delayed", text: "The promised substation upgrade won't be complete before the facility opens.", fx: { grid: -1 }, discuss: "Delay opening or proceed at risk?" },
+    { id: 3,  t: "Infrastructure", title: "Renewable Energy Partnership", text: "The developer announces a solar agreement offsetting 40% of facility load.", fx: { grid: 1, trust: 1 } },
+    { id: 4,  t: "Infrastructure", title: "Water System Strain", text: "A drought warning is issued. The facility's daily water use becomes front-page news.", fx: { water: -2, trust: -1 } },
+    { id: 5,  t: "Infrastructure", title: "Backup Generator Incident", text: "A generator test produces noise and emissions complaints from the residential area.", fx: { trust: -1 }, discuss: "Require advance notice for future tests?" },
+    { id: 6,  t: "Infrastructure", title: "Grid Modernization Grant", text: "The state awards a grid grant to the county, partly in response to data center load growth.", fx: { grid: 2, econ: 1 } },
+    { id: 7,  t: "Political", title: "State Impact Study Released", text: "The Sept. 2026 study finds significant rate impacts in high data center counties.",
+      options: [
+        { label: "Our community engaged in the study", fx: { trust: 1 } },
+        { label: "Our community did not engage", fx: { trust: -2 } }
+      ] },
+    { id: 8,  t: "Political", title: "County Council Election", text: "A new council member wins on a data center accountability platform.", fx: { trust: 1 }, discuss: "Renegotiate the community benefit agreement?" },
+    { id: 9,  t: "Political", title: "Neighboring County Moratorium", text: "An adjacent county declares a moratorium on new data centers. Media attention increases.", dependsOnTrust: true,
+      options: [
+        { label: "Trust is holding: the county looks careful by comparison", fx: { trust: 1 }, when: "hi" },
+        { label: "Trust is shaky: residents ask why we didn't pause too", fx: { trust: -1 }, when: "lo" }
+      ] },
+    { id: 10, t: "Political", title: "CBA Legal Challenge", text: "A resident coalition files a legal challenge: the benefit agreement lacked adequate community input.", fx: { econ: -1, trust: -1 }, discuss: "Reopen negotiations or defend the agreement?" },
+    { id: 11, t: "Political", title: "Environmental Justice Designation", text: "The EPA designates the impact zone as an environmental justice community. New federal resources become available.", fx: { econ: 1, trust: 1 } },
+    { id: 12, t: "Community", title: "Youth Research Project", text: "Students from the local high school present a rate impact analysis to the county council.", fx: { trust: 2, econ: 1 } },
+    { id: 13, t: "Community", title: "Faith Community Resolution", text: "A coalition of local faith communities passes a resolution calling for stronger oversight.", fx: { trust: -1 }, discuss: "Respond publicly or stay quiet?" },
+    { id: 14, t: "Community", title: "Community Navigator Hired", text: "A trusted community member is hired as the data center liaison using CBA funds.", fx: { trust: 2 } },
+    { id: 15, t: "Community", title: "Disinformation Campaign", text: "False information about the facility circulates on social media.", fx: { trust: -2 }, discuss: "Host a public information session?" },
+    { id: 16, t: "Community", title: "Tenant Organizing", text: "Renters in the impact zone organize around rate increases. They were excluded from the original engagement process.", fx: { trust: -2, econ: -1 } },
+    { id: 17, t: "Developer", title: "Commitment Kept", text: "The first annual compliance report shows all community benefit agreement commitments fulfilled on time.", fx: { trust: 2, econ: 1 } },
+    { id: 18, t: "Developer", title: "Parent Company Acquisition", text: "The data center operator is acquired. Original CBA commitments are under review.", fx: { trust: -2 }, discuss: "Require reaffirmation of all commitments?" },
+    { id: 19, t: "Developer", title: "Similar Facility Makes News", text: "The same company's facility in another state is cited for environmental violations.", fx: { trust: -2 }, discuss: "Request an independent audit?" },
+    { id: 20, t: "Developer", title: "Local Hiring Milestone", text: "The facility exceeds its local hiring commitment: 40% of permanent positions filled by county residents.", fx: { trust: 1, econ: 2 } }
+  ];
+
+  // Community Choice cards 21–25
+  var CHOICES = [
+    { id: 21, title: "Demand a Developer Resume", text: "The community formally requests a full developer history before any permits are approved.", discuss: "What do you need to see?",
+      options: [
+        { label: "Developer complies", fx: { trust: 2 } },
+        { label: "Developer resists", fx: { trust: -2 }, drawAnother: true, sub: "Trust −2, and the community must play another Choice card." }
+      ], who: "The Developer player decides how to respond." },
+    { id: 22, title: "Form an Oversight Board", text: "Design the board's composition and authority. You must reach agreement on its structure.", discuss: "Who gets a seat? Who decides?",
+      options: [
+        { label: "We agreed on a structure", fx: { trust: 2, econ: 1 }, record: "Describe the board: who sits on it and what power it has" },
+        { label: "We could not agree", fx: { trust: -1 } }
+      ] },
+    { id: 23, title: "Commission Independent Study", text: "The community requests an independent analysis of rate and environmental impacts, funded by the developer.",
+      options: [
+        { label: "We agreed to commission it", fx: { grid: 1, water: 1, econ: -1, trust: 2 } },
+        { label: "We could not agree", fx: {} , sub: "No meters move." }
+      ] },
+    { id: 24, title: "Invoke the Right to Understand", text: "The community declares current disclosure insufficient and demands plain-language materials before the process continues.", discuss: "What does understanding actually require?",
+      options: [
+        { label: "We agreed to invoke it", fx: { trust: 2 }, delay: true, sub: "Trust +2. The decision is delayed one round." },
+        { label: "We could not agree", fx: {}, sub: "No meters move." }
+      ] },
+    { id: 25, title: "Build the Coalition", text: "Choose two external allies. Each ally raises one meter by 1.", discuss: "Who do you trust and why?", coalition: true }
+  ];
+  var ALLIES = ["Legislators", "HBCU partner", "Environmental advocates", "Labor unions", "Faith communities", "Student researchers"];
+
+  var COMMUNITY_QS = ["What do we know?", "What is unclear?", "What are the impacts?", "Who benefits?", "Who bears the cost?", "What are the alternatives?"];
+  var RESUME = ["Project history", "Commitments", "Environmental record", "Legal & regulatory", "Community impact"];
+
+  // 15-minute challenges (Patuxent County 15-Minute Demo Deck)
+  var CHALLENGES = [
+    { k: "pay", name: "Who Pays?", blurb: "Infrastructure and cost allocation. The data center is already approved, and then the grid picture changes.", accent: "var(--grid)",
+      cards: [
+        { title: "Start here", body: "Patuxent County has approved a large data center. Construction is underway. Then the infrastructure picture changes." },
+        { title: "New transmission needed", body: "Regional grid planners determine that additional transmission and substation infrastructure will be needed to reliably serve growing electricity demand. Some proposed infrastructure would cross communities receiving little direct economic benefit.", q: "Who counts as an impacted community?" },
+        { title: "Cost allocation dispute", body: "Some costs of regional grid expansion may ultimately be shared across utility customers, including households and businesses outside Patuxent County.", q: "Who should pay for infrastructure driven by large new electricity demand?" },
+        { title: "Infrastructure offer", body: "The developer offers to fund project-specific substation improvements and contribute to local infrastructure upgrades. In exchange, the company wants an accelerated approval schedule.", q: "What should the county require in writing?" },
+        { title: "Make the deal", final: true, body: "Choose one.", vote: [
+          { k: "A", label: "Approve now", sub: "Accept the offer and proceed." },
+          { k: "B", label: "Approve with conditions", sub: "Require enforceable cost protections and infrastructure commitments." },
+          { k: "C", label: "Delay", sub: "Wait for independent analysis." } ],
+          q: "Who benefits? Who pays? Are they the same people?" }
+      ] },
+    { k: "know", name: "What Didn't We Know?", blurb: "Transparency and the Right to Understand. The information is technically public. Is the public actually informed?", accent: "var(--trust)",
+      cards: [
+        { title: "Start here", body: "A major technology company proposes a data center campus promising investment, tax revenue, and jobs. The county must decide whether to advance the project." },
+        { title: "The proposal", body: "The developer promises major investment, construction jobs, permanent technical positions, new tax revenue, and infrastructure improvements. The company asks the county to move quickly because other jurisdictions are competing.", q: "What information would you want before saying yes?" },
+        { title: "Confidentiality agreement", body: "A public-records request reveals that county officials and the developer began confidential discussions months before residents learned about the project. Some information remains confidential because officials say disclosure could harm negotiations.", q: "What should have been public? When is confidentiality justified?" },
+        { title: "387 pages", body: "The county releases technical studies covering electricity, water, traffic, noise, environmental impacts, and fiscal projections. The documents are public. They total 387 pages. The public hearing is in 10 days.", q: "Is information being available the same as the public being meaningfully informed?" },
+        { title: "Right to understand", final: true, body: "The community can demand plain-language project summaries, independent technical review, disclosure of major infrastructure assumptions, more time for public review, and public questions with documented answers.", vote: [
+          { k: "go", label: "Proceed now", sub: "Hold the hearing on schedule." },
+          { k: "pause", label: "Pause until these conditions are met", sub: "Delay until the community can understand what it is deciding." } ],
+          q: "What does a community have the right to understand before saying yes?" }
+      ] },
+    { k: "build", name: "Would You Build It?", blurb: "Tradeoffs, negotiation, and conditional approval. You'll vote three times. Notice what changes your mind.", accent: "var(--econ)",
+      cards: [
+        { title: "Start here", body: "Patuxent County needs economic investment. A data center developer proposes a major campus on industrial land. You will vote three times as new information appears. Notice what changes your mind." },
+        { title: "The offer", body: "The project promises major capital investment, new county tax revenue, hundreds of construction jobs, permanent technical jobs, and potential infrastructure investment. It will also require substantial electricity and new supporting infrastructure.", voteLabel: "Initial vote", vote: "ynm" },
+        { title: "The hidden system", body: "Further review identifies additional needs: grid upgrades, new transmission capacity, backup power systems, water infrastructure, and emergency-response planning. Some costs and responsibilities remain uncertain.", voteLabel: "Vote again", q: "Does this change your position?", vote: "ynm" },
+        { title: "A better deal", body: "The developer agrees to fund project-specific infrastructure improvements, create a local workforce partnership, fund independent environmental monitoring, provide annual public compliance reports, and contribute to emergency-response capacity. Commitments will be legally enforceable.", voteLabel: "Vote again", vote: "ynm" },
+        { title: "Final decision", final: true, body: "Choose one.", vote: [
+          { k: "build", label: "Build it", sub: "Benefits outweigh remaining concerns." },
+          { k: "change", label: "Change it", sub: "Approve only with additional conditions. Name your three conditions." },
+          { k: "walk", label: "Walk away", sub: "The project does not meet the county's needs." } ], conditions3: true }
+      ] }
+  ];
+  var YNM = [ { k: "y", label: "Yes" }, { k: "n", label: "No" }, { k: "m", label: "Need more information" } ];
+
+  /* ================= HELPERS ================= */
+  var app = document.getElementById("app");
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function fxText(fx) {
+    var parts = Object.keys(fx || {}).filter(function (k) { return fx[k]; }).map(function (k) { return MNAME[k] + " " + (fx[k] > 0 ? "+" : "−") + Math.abs(fx[k]); });
+    return parts.length ? parts.join(", ") : "No change";
+  }
+  function fxChips(fx) {
+    var keys = Object.keys(fx || {}).filter(function (k) { return fx[k]; });
+    if (!keys.length) return '<div class="fx"><span>No meter change</span></div>';
+    return '<div class="fx">' + keys.map(function (k) { return '<span class="' + (fx[k] > 0 ? "up" : "down") + '">' + MNAME[k] + " " + (fx[k] > 0 ? "+" : "−") + Math.abs(fx[k]) + "</span>"; }).join("") + "</div>";
+  }
+  function on(sel, ev, fn) { app.querySelectorAll(sel).forEach(function (el) { el.addEventListener(ev, fn); }); }
+  function top() { var r = app.getBoundingClientRect(); if (r.top < 0) window.scrollTo({ top: window.scrollY + r.top - 12, behavior: "smooth" }); }
+
+  /* ================= HOME ================= */
+  function home() {
+    app.innerHTML =
+      '<div class="modes">' +
+      '<button class="mode-card" data-go="quick" style="--accent:var(--gold)"><span class="eyebrow" style="color:var(--green)">10–15 minutes</span><h2 style="margin:.3em 0">15-minute challenges</h2><p>Three short scenarios. Reveal one card at a time, discuss, and end with a group decision. Good for a first session, a class period, or a demo table.</p><span class="meta">Choose a challenge →</span></button>' +
+      '<button class="mode-card" data-go="full" style="--accent:var(--econ)"><span class="eyebrow" style="color:var(--green)">45–75 minutes</span><h2 style="margin:.3em 0">Full game</h2><p>Take on stakeholder roles, draw event cards, play Community Choice cards, and watch four meters rise and fall before you make the final call.</p><span class="meta">Set up a game →</span></button>' +
+      '</div>' +
+      '<div class="panel"><h2>How to use this page</h2><p>Put it on a projector or shared screen with one person running it. Everyone else talks, argues, and votes. The screen keeps track of the cards and meters, and your group does the deciding.</p>' +
+      '<div class="core"><b>The core question.</b> After every card, every decision, every meter shift, ask: <em>Who benefits? Who bears the cost? Are those the same people?</em> If they aren\'t, that\'s not a game mechanic. That\'s the problem.</div></div>';
+    on("[data-go]", "click", function () { this.getAttribute("data-go") === "quick" ? quickPick() : setup(); top(); });
+  }
+
+  /* ================= 15-MINUTE CHALLENGES ================= */
+  var Q;
+  function quickPick() {
+    app.innerHTML = '<p><button class="link-btn" id="back">← Back to game modes</button></p><h2 style="margin-top:0">Choose a challenge</h2><div class="modes">' +
+      CHALLENGES.map(function (c, i) { return '<button class="mode-card" data-c="' + i + '" style="--accent:' + c.accent + '"><h3>' + c.name + '</h3><p>' + c.blurb + '</p><span class="meta">' + c.cards.length + ' cards →</span></button>'; }).join("") +
+      '</div><div class="panel small"><b>Facilitator tips.</b> Read each card aloud. Give the table one to two minutes per card: ask the printed question, invite competing views, then reveal the next card. Don\'t let people read ahead. At the end, make the group choose. A vote, conditions, a delay, or walking away are all legitimate outcomes if the group can explain why.</div>';
+    on("#back", "click", home);
+    on("[data-c]", "click", function () { Q = { c: CHALLENGES[+this.getAttribute("data-c")], i: 0, votes: {}, conds: ["", "", ""] }; quickCard(); top(); });
+  }
+  function voteOptions(card) { return card.vote === "ynm" ? YNM : card.vote; }
+  function quickCard() {
+    var c = Q.c, card = c.cards[Q.i], last = Q.i === c.cards.length - 1;
+    var v = Q.votes[Q.i] || (card.vote ? (Q.votes[Q.i] = {}) : null);
+    var html = '<p class="noprint"><button class="link-btn" id="back">← Choose a different challenge</button></p>' +
+      '<div class="panel dark"><div class="row spread"><span class="eyebrow" style="color:var(--gold)">' + esc(c.name) + '</span><span class="small" style="opacity:.8">Card ' + (Q.i + 1) + ' of ' + c.cards.length + '</span></div>' +
+      '<div class="game-card" style="margin-top:14px"><h3 style="margin-top:0">' + esc(card.title) + '</h3><p>' + esc(card.body) + '</p>';
+    if (card.vote) {
+      html += '<div class="eyebrow" style="color:var(--green);margin-top:10px">' + esc(card.voteLabel || "Group decision") + ' · count hands</div><div class="tally-grid">' +
+        voteOptions(card).map(function (o) { return '<div class="tally-row"><div class="lbl"><b>' + esc(o.label) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</div><div class="counter"><button data-v="' + o.k + '" data-d="-1" aria-label="Remove a vote">−</button><output>' + (v[o.k] || 0) + '</output><button data-v="' + o.k + '" data-d="1" aria-label="Add a vote">+</button></div></div>'; }).join("") + '</div>';
+    }
+    if (card.conditions3) {
+      html += '<label class="field">If you chose Change It, name your three conditions</label>' + [0, 1, 2].map(function (i) { return '<input type="text" class="c3" data-i="' + i + '" placeholder="Condition ' + (i + 1) + '" value="' + esc(Q.conds[i]) + '" style="margin-bottom:8px">'; }).join("");
+    }
+    if (card.q) html += '<div class="discuss"><b>' + (card.final ? "Final question" : "Discuss") + ':</b> ' + esc(card.q) + '</div>';
+    html += '</div><div class="progress-dots">' + c.cards.map(function (_, i) { return '<i class="' + (i <= Q.i ? "on" : "") + '"></i>'; }).join("") + '</div>' +
+      '<div class="row spread" style="margin-top:16px"><button class="btn ghost" id="prev" style="border-color:#fff;color:#fff;' + (Q.i ? "" : "visibility:hidden") + '">← Back</button>' +
+      '<button class="btn gold" id="next">' + (last ? "Debrief →" : "Reveal next card →") + '</button></div></div>';
+    app.innerHTML = html;
+    on("#back", "click", quickPick);
+    on("[data-v]", "click", function () { var k = this.getAttribute("data-v"); v[k] = Math.max(0, (v[k] || 0) + +this.getAttribute("data-d")); this.parentNode.querySelector("output").textContent = v[k]; });
+    on(".c3", "input", function () { Q.conds[+this.getAttribute("data-i")] = this.value; });
+    on("#prev", "click", function () { Q.i--; quickCard(); });
+    on("#next", "click", function () { if (last) quickDebrief(); else { Q.i++; quickCard(); } top(); });
+  }
+  function quickDebrief() {
+    var c = Q.c, rows = "";
+    c.cards.forEach(function (card, i) {
+      if (!card.vote) return;
+      var v = Q.votes[i] || {};
+      rows += '<tr><td><b>' + esc(card.voteLabel || card.title) + '</b><br><span class="muted small">' + esc(card.title) + '</span></td><td>' + voteOptions(card).map(function (o) { return esc(o.label) + ": <b>" + (v[o.k] || 0) + "</b>"; }).join("<br>") + '</td></tr>';
+    });
+    var conds = Q.conds.filter(function (s) { return s.trim(); });
+    app.innerHTML = '<div class="panel"><span class="eyebrow" style="color:var(--green)">' + esc(c.name) + ' · Debrief</span><h2>What happened at your table?</h2>' +
+      (rows ? '<div class="table-scroll"><table class="log"><thead><tr><th>Vote</th><th>Result</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '') +
+      (conds.length ? '<h3 style="margin-top:18px">Your conditions</h3><ol>' + conds.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ol>' : '') +
+      '<h3 style="margin-top:18px">Talk it through</h3><ul><li>What changed your mind?</li><li>What information mattered most?</li><li>Who had power in this decision?</li><li>What would you want to know in a real community decision?</li></ul>' +
+      '<div class="core">The goal isn\'t to teach anyone what to think about data centers. It\'s to experience how information, infrastructure, competing interests, and public participation shape a civic decision.</div>' +
+      '<div class="row noprint" style="margin-top:18px"><button class="btn" id="again">Try another challenge</button><button class="btn ghost" id="full">Play the full game</button><button class="btn ghost" onclick="window.print()">Print this record</button></div></div>';
+    on("#again", "click", quickPick); on("#full", "click", setup);
+  }
+
+  /* ================= FULL GAME ================= */
+  var G;
+  function setup() {
+    var sel = G && G.setupRoles ? G.setupRoles : ROLES.map(function (r) { return r.k; });
+    var rounds = G && G.setupRounds ? G.setupRounds : 4;
+    app.innerHTML = '<p><button class="link-btn" id="back">← Back to game modes</button></p>' +
+      '<div class="panel"><div class="steps"><span class="on">Setup</span><span>Proposal</span><span>Events</span><span>Decision</span><span>Debrief</span></div><h2>Set up your table</h2>' +
+      '<p>Choose the stakeholder roles in the room. Give each person or small team one role. With a small group, leave some roles out, but try to keep Residents and the Developer.</p><div class="roles">' +
+      ROLES.map(function (r) { var c = sel.indexOf(r.k) > -1; return '<label class="role' + (c ? " on" : "") + '"><input type="checkbox" value="' + r.k + '"' + (c ? " checked" : "") + '><div><b>' + r.name + '</b><span>' + r.d + '</span></div></label>'; }).join("") +
+      '</div><label class="field" style="margin-top:20px">How many event rounds?</label><div class="seg-choice" role="group">' +
+      [3, 4, 5, 6].map(function (n) { return '<button type="button" data-r="' + n + '" aria-pressed="' + (n === rounds) + '">' + n + '</button>'; }).join("") +
+      '</div><p class="muted small" style="margin-top:8px">Each round takes about 8–12 minutes with discussion. Four rounds fits a 60-minute session.</p>' +
+      '<p class="muted small">All four meters start at 3 out of 5.</p><div class="row" style="margin-top:12px"><button class="btn gold" id="start">Read the proposal →</button></div></div>';
+    on("#back", "click", home);
+    on(".role input", "change", function () { this.closest(".role").classList.toggle("on", this.checked); });
+    on("[data-r]", "click", function () { rounds = +this.getAttribute("data-r"); app.querySelectorAll("[data-r]").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-r") === rounds)); }); });
+    on("#start", "click", function () {
+      var roles = [].map.call(app.querySelectorAll(".role input:checked"), function (i) { return i.value; });
+      if (roles.length < 2) { alertBox("Pick at least two roles so there's someone to disagree with."); return; }
+      G = { setupRoles: roles, setupRounds: rounds, roles: roles, rounds: rounds, round: 0,
+            m: { grid: 3, water: 3, trust: 3, econ: 3 }, deck: shuffle(EVENTS), used: {}, log: [],
+            hist: [{ label: "Start", m: { grid: 3, water: 3, trust: 3, econ: 3 } }], cur: null, curChoice: null, forceChoice: false, playedChoiceThisRound: false };
+      proposal(); top();
+    });
+  }
+  function alertBox(msg) {
+    var el = document.createElement("div"); el.className = "alert"; el.textContent = msg; el.style.marginTop = "12px";
+    var btn = app.querySelector("#start"); btn.parentNode.after(el); setTimeout(function () { el.remove(); }, 4000);
+  }
+
+  function meterBoard() {
+    var html = '<div class="meters">' + METERS.map(function (mt) {
+      var v = G.m[mt.k];
+      return '<div class="meter" data-m="' + mt.k + '"><div class="meter-head"><span class="meter-name">' + mt.name + '</span><span class="meter-val">' + v + '</span></div>' +
+        '<div class="segs">' + [1, 2, 3, 4, 5].map(function (i) { return '<i style="' + (i <= v ? "background:" + mt.color : "") + '"></i>'; }).join("") + '</div>' +
+        '<div class="ends"><span>' + mt.lo + '</span><span>' + mt.hi + '</span></div>' +
+        '<div class="adj noprint"><button data-adj="' + mt.k + '" data-d="-1" aria-label="Lower ' + mt.name + '">−</button><button data-adj="' + mt.k + '" data-d="1" aria-label="Raise ' + mt.name + '">+</button></div></div>';
+    }).join("") + '</div>';
+    var a = [];
+    METERS.forEach(function (mt) { if (G.m[mt.k] === 0) a.push('<div class="alert"><b>' + mt.name + ' has hit zero.</b> ' + mt.zero + '</div>'); });
+    if (G.m.trust <= 1) a.push('<div class="alert"><b>Critical rule in effect.</b> Public Trust is at 1 or below, so every Community Choice card now needs <b>unanimous</b> agreement. A fractured community can\'t act collectively.</div>');
+    if (G.m.econ >= 4 && G.m.trust <= 2) a.push('<div class="alert warn"><b>High Economic Benefit + Low Trust = unstable.</b> The money is flowing, but people don\'t trust how it got here.</div>');
+    if (G.m.trust >= 4 && G.m.econ <= 2) a.push('<div class="alert warn"><b>High Trust + Low Economic Benefit = patience, not satisfaction.</b> Goodwill won\'t last forever without real benefit.</div>');
+    if (G.m.grid <= 1 && G.m.water <= 1) a.push('<div class="alert warn"><b>Grid and water are both strained.</b> They\'re linked: a heat wave hits both at once.</div>');
+    return '<div class="panel" style="padding:16px"><div class="row spread" style="margin-bottom:10px"><span class="eyebrow" style="color:var(--navy)">The four meters</span><span class="muted small noprint">Use − / + for adjustments your group agrees on</span></div>' + html + (a.length ? '<div class="alerts">' + a.join("") + '</div>' : '') + '</div>';
+  }
+  function bindMeters(rerender) {
+    on("[data-adj]", "click", function () {
+      var k = this.getAttribute("data-adj"), d = +this.getAttribute("data-d"), f = {}; f[k] = d;
+      if (applyFx(f, "Facilitator adjustment", "Group-agreed change")) rerender();
+    });
+  }
+  function applyFx(fx, title, note) {
+    var real = {}, changed = false, capped = [];
+    Object.keys(fx || {}).forEach(function (k) {
+      var before = G.m[k]; G.m[k] = Math.max(0, Math.min(5, before + fx[k])); real[k] = G.m[k] - before; if (real[k]) changed = true;
+      if (fx[k] && real[k] !== fx[k]) capped.push(MNAME[k] + (fx[k] > 0 ? " was already near the top (5)" : " was already near the bottom (0)"));
+    });
+    if (capped.length) note = (note ? note + " · " : "") + capped.join("; ");
+    G.log.push({ round: G.round || "Setup", title: title, fx: real, note: note || "" });
+    return changed || true;
+  }
+  function stepBar(active) { return '<div class="steps">' + ["Setup", "Proposal", "Events", "Decision", "Debrief"].map(function (s) { return '<span class="' + (s === active ? "on" : "") + '">' + s + '</span>'; }).join("") + '</div>'; }
+  function roleName(k) { for (var i = 0; i < ROLES.length; i++) if (ROLES[i].k === k) return ROLES[i].name; return k; }
+
+  function proposal() {
+    app.innerHTML = meterBoard() + '<div class="panel">' + stepBar("Proposal") + '<h2>The proposal</h2>' +
+      '<p>A data center developer proposes a major campus on industrial land in Patuxent County. The project promises major capital investment, new county tax revenue, hundreds of construction jobs, permanent technical jobs, and potential infrastructure investment. It will also require substantial electricity and new supporting infrastructure.</p>' +
+      '<div class="modes" style="margin:10px 0 0"><div><h3>The Developer Resume</h3><p class="muted small">Before anything else, what would you want to see in each area? The Developer player answers in character, and anything they can\'t answer is worth noticing.</p><ul>' + RESUME.map(function (r) { return '<li>' + r + '</li>'; }).join("") + '</ul></div>' +
+      '<div><h3>Community Questions</h3><p class="muted small">Every role should ask at least one.</p><ul>' + COMMUNITY_QS.map(function (r) { return '<li>' + r + '</li>'; }).join("") + '</ul></div></div>' +
+      '<p><span class="askfirst">Ask first: ' + roleName(G.roles[0]) + '</span></p>' +
+      '<div class="row" style="margin-top:14px"><button class="btn gold" id="go">Start round 1 →</button></div></div>';
+    bindMeters(proposal);
+    on("#go", "click", function () { G.round = 1; G.cur = null; G.curDone = false; G.playedChoiceThisRound = false; round(); top(); });
+  }
+
+  function round() {
+    var ask = roleName(G.roles[(G.round) % G.roles.length]);
+    var html = meterBoard() + '<div class="panel">' + stepBar("Events") +
+      '<div class="row spread"><h2 style="margin:0">Round ' + G.round + ' of ' + G.rounds + '</h2><span class="askfirst">Ask first: ' + ask + '</span></div>';
+
+    // Event card area
+    html += '<div style="margin-top:16px">';
+    if (!G.cur) {
+      html += '<div class="deck-back"><div class="display">Event Card</div><p style="opacity:.85">Something is about to happen to Patuxent County.</p><button class="btn gold" id="draw">Draw an event card</button></div>';
+    } else html += cardHtml(G.cur, false);
+    html += '</div>';
+
+    // Community Choice
+    if (G.curDone) {
+      if (G.curChoice) {
+        html += '<h3 style="margin-top:24px">Community Choice</h3>' + cardHtml(G.curChoice, true);
+      } else if (G.forceChoice) {
+        html += '<div class="alert" style="margin-top:18px"><b>The developer resisted.</b> The community must play another Community Choice card.</div>' + handHtml();
+      } else if (!G.playedChoiceThisRound) {
+        html += '<h3 style="margin-top:24px">Act together? (optional)</h3><p class="muted">Instead of only reacting, your community can choose to act. Pick one Community Choice card to play this round, or skip. Each card can be played once per game.' +
+          (G.m.trust <= 1 ? ' <b>Trust is at 1 or below, so agreement must be unanimous.</b>' : ' Agreement means a majority of the table.') + '</p>' + handHtml();
+      }
+      if (G.playedChoiceThisRound && !G.curChoice && G.choiceResult) html += '<div class="core" style="margin-top:18px"><b>Community Choice played.</b> ' + esc(G.choiceResult) + '</div>';
+      var ready = !G.curChoice && !G.forceChoice;
+      if (ready) {
+        var lastRound = G.round >= G.rounds;
+        html += '<div class="row" style="margin-top:20px"><button class="btn gold" id="nextRound">' + (lastRound ? "Go to the decision →" : "Start round " + (G.round + 1) + " →") + '</button></div>';
+      }
+    }
+    html += '</div>';
+    app.innerHTML = html;
+    bindMeters(round);
+    on("#draw", "click", function () {
+      if (!G.deck.length) G.deck = shuffle(EVENTS);
+      G.cur = G.deck.shift(); G.curDone = false; round();
+    });
+    bindCard(G.cur, false);
+    bindCard(G.curChoice, true);
+    on("[data-play]", "click", function () {
+      var id = +this.getAttribute("data-play");
+      G.curChoice = CHOICES.filter(function (c) { return c.id === id; })[0]; G.used[id] = true; G.forceChoice = false; G.playedChoiceThisRound = true; round();
+    });
+    on("#nextRound", "click", function () {
+      G.hist.push({ label: "Round " + G.round, m: Object.assign({}, G.m) });
+      if (G.round >= G.rounds) { decision(); }
+      else { G.round++; G.cur = null; G.curDone = false; G.playedChoiceThisRound = false; G.choiceResult = ""; round(); }
+      top();
+    });
+  }
+  function handHtml() {
+    return '<div class="hand">' + CHOICES.map(function (c) { return '<button data-play="' + c.id + '"' + (G.used[c.id] ? " disabled" : "") + '><b>' + c.title + '</b><span class="small muted">' + (G.used[c.id] ? "Already played" : c.text) + '</span></button>'; }).join("") + '</div>';
+  }
+
+  function cardHtml(card, isChoice) {
+    var type = isChoice ? "Choice" : card.t;
+    var done = isChoice ? false : G.curDone;
+    var h = '<div class="game-card"><span class="ctype ' + type + '">' + (isChoice ? "Community Choice" : card.t) + '</span><h3>' + esc(card.title) + '</h3><p>' + esc(card.text) + '</p>';
+    if (isChoice && card.who) h += '<p class="small muted">' + card.who + '</p>';
+    if (card.fx && !card.options) h += fxChips(card.fx);
+    if (card.discuss) h += '<div class="discuss"><b>Discuss:</b> ' + esc(card.discuss) + '</div>';
+
+    if (done) {
+      h += '<div class="core"><b>Applied:</b> ' + esc(G.eventApplied) + '<br><em>Who benefits? Who bears the cost? Are those the same people?</em></div>';
+    } else if (card.coalition) {
+      h += '<p class="small" style="margin-top:12px"><b>Pick two allies</b>, and for each one choose which meter it raises.' + (G.m.trust <= 1 ? " Unanimous agreement required." : "") + '</p>' +
+        [0, 1].map(function (i) { return '<div class="cond" style="grid-template-columns:1fr 1fr"><select class="ally" data-i="' + i + '"><option value="">Ally ' + (i + 1) + '…</option>' + ALLIES.map(function (a) { return '<option>' + a + '</option>'; }).join("") + '</select><select class="allym" data-i="' + i + '"><option value="">raises…</option>' + METERS.map(function (m) { return '<option value="' + m.k + '">' + m.name + ' +1</option>'; }).join("") + '</select></div>'; }).join("") +
+        '<div class="row"><button class="btn" id="coalOk">We agreed on these allies</button><button class="btn ghost" id="coalNo">We could not agree</button></div>';
+    } else if (card.options) {
+      var trustHi = G.m.trust >= 3;
+      if (card.dependsOnTrust) h += '<p class="small muted" style="margin-top:10px">This card depends on current trust. Trust is <b>' + G.m.trust + '</b>, so the highlighted option is suggested, but your group decides.</p>';
+      if (isChoice && card.id !== 21) h += '<p class="small" style="margin-top:10px">' + (G.m.trust <= 1 ? "<b>Unanimous</b> agreement required (Trust is 1 or below)." : "Majority agreement required.") + '</p>';
+      h += '<div class="opts">' + card.options.map(function (o, i) {
+        var sug = card.dependsOnTrust && ((o.when === "hi") === trustHi);
+        return '<button class="opt-btn' + (sug ? " suggest" : "") + '" data-opt="' + i + '"><b>' + esc(o.label) + '</b><small>' + esc(o.sub || fxText(o.fx)) + '</small></button>';
+      }).join("") + '</div>';
+      if (card.options.some(function (o) { return o.record; })) h += '<label class="field">' + esc(card.options.filter(function (o) { return o.record; })[0].record) + ' (optional)</label><textarea id="rec" rows="2"></textarea>';
+    } else {
+      h += '<div class="row" style="margin-top:12px"><button class="btn" id="apply">Apply meter changes</button></div>';
+    }
+    return h + '</div>';
+  }
+
+  function bindCard(card, isChoice) {
+    if (!card) return;
+    function finish(fx, note, opts) {
+      opts = opts || {};
+      var before = Object.assign({}, G.m);
+      applyFx(fx, (isChoice ? "Choice: " : "") + card.title, note);
+      var real = G.log[G.log.length - 1].fx;
+      var capNote = /already near/.test(G.log[G.log.length - 1].note) ? " (" + G.log[G.log.length - 1].note.split(" · ").filter(function (x) { return /already near/.test(x); }).join("") + ")" : "";
+      if (!isChoice) G.eventApplied = fxText(real) + capNote;
+      if (isChoice) {
+        G.curChoice = null;
+        if (opts.drawAnother) {
+          var left = CHOICES.filter(function (c) { return !G.used[c.id]; });
+          G.forceChoice = left.length > 0;
+        }
+        if (opts.delay) { G.rounds++; G.log[G.log.length - 1].note += (G.log[G.log.length - 1].note ? " · " : "") + "Decision delayed one round"; }
+        G.choiceResult = card.title + ": " + fxText(real) + (G.log[G.log.length - 1].note ? " (" + G.log[G.log.length - 1].note + ")" : "");
+      } else { G.curDone = true; }
+      round();
+      METERS.forEach(function (m) { if (G.m[m.k] !== before[m.k]) { var el = app.querySelector('.meter[data-m="' + m.k + '"]'); if (el) el.classList.add("bump"); } });
+    }
+    var scope = isChoice ? "Choice" : "Event";
+    if (!isChoice && G.curDone) return;
+    if (card.coalition) {
+      on("#coalOk", "click", function () {
+        var fx = {}, names = [];
+        for (var i = 0; i < 2; i++) {
+          var a = app.querySelector('.ally[data-i="' + i + '"]').value, m = app.querySelector('.allym[data-i="' + i + '"]').value;
+          if (!a || !m) { this.textContent = "Pick both allies and meters"; return; }
+          fx[m] = (fx[m] || 0) + 1; names.push(a + " → " + MNAME[m]);
+        }
+        finish(fx, names.join("; "));
+      });
+      on("#coalNo", "click", function () { finish({}, "Could not agree on allies"); });
+      return;
+    }
+    if (card.options) {
+      on("[data-opt]", "click", function () {
+        var o = card.options[+this.getAttribute("data-opt")];
+        var rec = app.querySelector("#rec");
+        var note = o.label + (o.record && rec && rec.value.trim() ? ": " + rec.value.trim() : "");
+        finish(o.fx, note, o);
+      });
+      return;
+    }
+    on("#apply", "click", function () { finish(card.fx, card.discuss ? "Discussed: " + card.discuss : ""); });
+  }
+
+  function decision() {
+    var roleOpts = G.roles.map(function (r) { return '<option value="' + r + '">' + roleName(r) + '</option>'; }).join("");
+    G.dec = G.dec || { choice: null, conds: [{ t: "", r: G.roles[0] }], reason: "" };
+    function render() {
+      var d = G.dec;
+      var html = meterBoard() + '<div class="panel">' + stepBar("Decision") + '<h2>Make the decision</h2><p>Look at the meters and everything that happened. Your table makes one decision.</p><div class="opts">' +
+        [["approve", "Approve", "The proposal moves forward as presented."],
+         ["conditions", "Approve with conditions", "The proposal moves forward with specific, enforceable requirements. Each condition is named and assigned to a stakeholder who monitors it."],
+         ["deny", "Delay / Deny", "The proposal is paused or rejected. You must state which meter failure or community concern drove the decision."]]
+        .map(function (o) { return '<button class="opt-btn' + (d.choice === o[0] ? " suggest" : "") + '" data-dec="' + o[0] + '" aria-pressed="' + (d.choice === o[0]) + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>'; }).join("") + '</div>';
+      if (d.choice === "conditions") {
+        html += '<label class="field">Conditions and who monitors each one</label>' + d.conds.map(function (c, i) {
+          return '<div class="cond"><input type="text" class="ct" data-i="' + i + '" placeholder="e.g. Developer pays full cost of the substation upgrade" value="' + esc(c.t) + '"><select class="cr" data-i="' + i + '">' + roleOpts.replace('value="' + c.r + '"', 'value="' + c.r + '" selected') + '</select><button class="btn ghost" data-rm="' + i + '" aria-label="Remove condition">✕</button></div>';
+        }).join("") + '<button class="link-btn" id="addc">+ Add another condition</button>';
+      }
+      if (d.choice === "deny") html += '<label class="field" for="reason">What meter failure or community concern drove this?</label><textarea id="reason" rows="3">' + esc(d.reason) + '</textarea>';
+      if (d.choice === "approve") html += '<label class="field" for="reason">Why does the table think this is ready? (optional)</label><textarea id="reason" rows="2">' + esc(d.reason) + '</textarea>';
+      html += '<p class="muted small" style="margin-top:14px">No outcome is automatically right. The debrief conversation is the point.</p>' +
+        '<div class="row"><button class="btn gold" id="toDebrief"' + (d.choice ? "" : " disabled") + '>Record decision and debrief →</button></div></div>';
+      app.innerHTML = html;
+      bindMeters(render);
+      on("[data-dec]", "click", function () { d.choice = this.getAttribute("data-dec"); render(); });
+      on(".ct", "input", function () { d.conds[+this.getAttribute("data-i")].t = this.value; });
+      on(".cr", "change", function () { d.conds[+this.getAttribute("data-i")].r = this.value; });
+      on("[data-rm]", "click", function () { d.conds.splice(+this.getAttribute("data-rm"), 1); if (!d.conds.length) d.conds.push({ t: "", r: G.roles[0] }); render(); });
+      on("#addc", "click", function () { d.conds.push({ t: "", r: G.roles[0] }); render(); });
+      on("#reason", "input", function () { d.reason = this.value; });
+      on("#toDebrief", "click", function () { G.hist.push({ label: "Final", m: Object.assign({}, G.m) }); debrief(); top(); });
+    }
+    render();
+  }
+
+  function debrief() {
+    var d = G.dec, label = { approve: "Approved", conditions: "Approved with conditions", deny: "Delayed / Denied" }[d.choice];
+    var conds = d.conds.filter(function (c) { return c.t.trim(); });
+    var start = G.hist[0].m, end = G.m;
+    var html = '<div class="panel">' + stepBar("Debrief") + '<span class="eyebrow" style="color:var(--green)">Patuxent County · Game record</span><h2>Decision: ' + label + '</h2>';
+    if (d.choice === "conditions") html += conds.length ? '<ol>' + conds.map(function (c) { return '<li>' + esc(c.t) + ' <span class="muted">(monitored by ' + roleName(c.r) + ')</span></li>'; }).join("") + '</ol>' : '<p class="muted">No conditions were written down. Is a condition with no one monitoring it enforceable?</p>';
+    if (d.reason.trim()) html += '<p><b>Reason:</b> ' + esc(d.reason) + '</p>';
+
+    html += '<h3 style="margin-top:20px">Where the meters ended up</h3><div class="table-scroll"><table class="log"><thead><tr><th>Meter</th>' + G.hist.map(function (h) { return '<th>' + h.label + '</th>'; }).join("") + '<th>Change</th></tr></thead><tbody>' +
+      METERS.map(function (m) { var ch = end[m.k] - start[m.k]; return '<tr><td><b>' + m.name + '</b></td>' + G.hist.map(function (h) { return '<td>' + h.m[m.k] + '</td>'; }).join("") + '<td><b style="color:' + (ch > 0 ? "#1f6b2c" : ch < 0 ? "#a3261b" : "inherit") + '">' + (ch > 0 ? "+" : ch < 0 ? "−" : "") + Math.abs(ch) + '</b></td></tr>'; }).join("") + '</tbody></table></div>';
+
+    html += '<h3 style="margin-top:20px">What happened</h3><div class="table-scroll"><table class="log"><thead><tr><th>Round</th><th>Card</th><th>Effect</th><th>Notes</th></tr></thead><tbody>' +
+      G.log.map(function (l) { return '<tr><td>' + l.round + '</td><td>' + esc(l.title) + '</td><td>' + esc(fxText(l.fx)) + '</td><td class="muted">' + esc(l.note) + '</td></tr>'; }).join("") + '</tbody></table></div>';
+
+    html += '<h3 style="margin-top:20px">Debrief</h3><ul><li>Who benefited?</li><li>Who bore the cost?</li><li>What would you do differently?</li><li>Which card changed the conversation most, and why?</li><li>Which role had the most power at your table? Which had the least?</li></ul>' +
+      '<div class="core"><b>Key principle.</b> Communities deserve clear information, procedural transparency, meaningful engagement, and enforceable accountability before major infrastructure decisions are finalized. Participation without understanding is not participation.</div>' +
+      '<div class="row noprint" style="margin-top:18px"><button class="btn" onclick="window.print()">Print game record</button><button class="btn ghost" id="copy">Copy game record</button><button class="btn ghost" id="again">Play again</button></div></div>';
+    app.innerHTML = html;
+    on("#again", "click", function () { G.dec = null; setup(); });
+    on("#copy", "click", function () {
+      var t = "PATUXENT COUNTY GAME RECORD\nDecision: " + label + "\n";
+      if (conds.length) t += conds.map(function (c, i) { return (i + 1) + ". " + c.t + " (monitored by " + roleName(c.r) + ")"; }).join("\n") + "\n";
+      if (d.reason.trim()) t += "Reason: " + d.reason + "\n";
+      t += "\nMeters (start → final): " + METERS.map(function (m) { return m.name + " " + start[m.k] + "→" + end[m.k]; }).join(", ") + "\n\n";
+      t += G.log.map(function (l) { return "Round " + l.round + " | " + l.title + " | " + fxText(l.fx) + (l.note ? " | " + l.note : ""); }).join("\n");
+      var b = this;
+      if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { b.textContent = "Copied"; }, function () { b.textContent = "Copy failed"; });
+    });
+  }
+
+  home();
+})();
+</script>
+</body>
+</html>

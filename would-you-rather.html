@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Would You Rather? · ELM Community Resources</title>
+<meta name="description" content="Twenty quick choices about AI in everyday and civic life, for solo play or group discussion.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js" defer></script>
+<style>
+  .intro { padding: 36px 0 8px; }
+  .intro p { max-width: 44em; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 18px 0; }
+  .mode { display: inline-flex; background: var(--paper); border: 2px solid var(--navy); border-radius: 12px; overflow: hidden; }
+  .mode button { font: inherit; font-weight: 700; font-size: .95rem; border: 0; background: transparent; color: var(--navy); padding: 10px 16px; cursor: pointer; min-height: 44px; }
+  .mode button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 20px; }
+  .chip { font: inherit; font-size: .85rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    border: 2px solid var(--line); background: var(--paper); color: var(--navy); padding: 6px 12px; border-radius: 999px; cursor: pointer; min-height: 36px; }
+  .chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--navy-deep); }
+
+  /* The card */
+  .stage { background: var(--navy); border-radius: 20px; padding: 22px; box-shadow: var(--shadow); color: #fff; }
+  .card-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .cat { background: var(--gold); color: var(--navy-deep); font-weight: 700; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .num { font-family: "Oswald", sans-serif; opacity: .75; letter-spacing: .08em; }
+  .question { font-family: "Oswald", sans-serif; font-size: clamp(1.4rem, 4.5vw, 2.1rem); line-height: 1.2; margin: 6px 0 20px; color: #fff; }
+
+  .options { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .or { align-self: center; font-family: "Oswald", sans-serif; font-size: 1.1rem; opacity: .7; }
+  .opt { position: relative; text-align: left; font: inherit; font-size: 1.1rem; line-height: 1.4; color: var(--ink);
+    background: var(--paper); border: 3px solid transparent; border-radius: 16px; padding: 18px 18px 18px 64px; cursor: pointer; min-height: 110px; transition: transform .12s ease, border-color .12s; }
+  .opt:hover { transform: translateY(-2px); }
+  .opt .letter { position: absolute; left: 16px; top: 16px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+    font-family: "Oswald", sans-serif; font-size: 1.2rem; color: #fff; }
+  .opt[data-o="A"] .letter { background: var(--water); }
+  .opt[data-o="B"] .letter { background: var(--econ); }
+  .opt.picked { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(233,185,73,.35); }
+  .opt.dim { opacity: .55; }
+
+  /* Group tally */
+  .tally { display: none; margin-top: 12px; align-items: center; gap: 10px; }
+  .group .tally { display: flex; }
+  .group .opt { cursor: default; }
+  .group .opt:hover { transform: none; }
+  .tally button { font: inherit; font-weight: 700; width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--navy); background: var(--paper); color: var(--navy); cursor: pointer; font-size: 1.2rem; }
+  .tally .count { font-family: "Oswald", sans-serif; font-size: 1.6rem; min-width: 2ch; text-align: center; color: var(--navy); }
+  .bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin-top: 10px; display: none; }
+  .group .bar { display: block; }
+  .bar span { display: block; height: 100%; width: 0; transition: width .2s; }
+  .opt[data-o="A"] .bar span { background: var(--water); }
+  .opt[data-o="B"] .bar span { background: var(--econ); }
+
+  .reflect { margin-top: 18px; background: rgba(255,255,255,.08); border-radius: 14px; padding: 16px 18px; display: none; }
+  .reflect.show { display: block; }
+  .reflect h3 { color: var(--gold); font-size: 1.05rem; letter-spacing: .06em; text-transform: uppercase; }
+  .reflect ul { margin: 0; padding-left: 1.2em; }
+  .reflect li { margin: 4px 0; }
+
+  .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .controls .btn.ghost { border-color: #fff; color: #fff; }
+  .controls .btn.ghost:hover { background: rgba(255,255,255,.1); }
+  .progress { font-size: .95rem; opacity: .85; }
+
+  /* Summary */
+  .summary { display: none; background: var(--paper); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); }
+  .summary.show { display: block; }
+  .summary ol { padding-left: 1.3em; }
+  .summary li { margin: 8px 0; }
+  .summary .skipped { color: var(--muted); font-style: italic; }
+
+  .facilitate { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 12px; }
+  .facilitate > div { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .facilitate h3 { font-size: 1.1rem; }
+  .facilitate ul, .facilitate ol { padding-left: 1.2em; margin: 0; font-size: 1rem; }
+
+  /* All cards / print view */
+  .all-cards { display: none; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 16px; }
+  .all-cards.show { display: grid; }
+  .mini { background: var(--paper); border: 2px solid var(--navy); border-radius: 14px; padding: 16px; break-inside: avoid; }
+  .mini .cat { font-size: .7rem; }
+  .mini h4 { font-family: "Oswald", sans-serif; color: var(--navy); font-size: 1.1rem; margin: 10px 0; font-weight: 600; }
+  .mini p { font-size: .95rem; margin: 6px 0; }
+  .mini b { color: var(--navy); }
+
+  @media (max-width: 640px) {
+    .options { grid-template-columns: 1fr; }
+    .or { justify-self: center; }
+    .stage { padding: 16px; }
+  }
+  @media print {
+    .site-header, .site-footer, .intro, .toolbar, .chips, .stage, .summary, .facilitate-wrap, .print-hide { display: none !important; }
+    body { background: #fff; }
+    .all-cards { display: grid !important; grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">ELM</span>
+      <span class="brand-text">Community Resources<small>Civic Governance Initiative</small></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="site-nav" id="nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="would-you-rather.html" aria-current="page">Would You Rather</a></li>
+        <li><a href="simulator.html">Civic Simulator</a></li>
+        <li><a href="right-to-understand.html">Right to Understand</a></li>
+        <li><a href="links.html">Helpful Links</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <h1>Would You Rather?</h1>
+    <p>Twenty choices about how AI shows up in everyday and public life. Each one sets two reasonable options against each other, and there are no right answers. The interesting part is what shaped your pick, and whether the person next to you chose differently.</p>
+  </section>
+
+  <div class="toolbar">
+    <div class="mode" role="group" aria-label="Play mode">
+      <button type="button" data-mode="solo" aria-pressed="true">Play on my own</button>
+      <button type="button" data-mode="group" aria-pressed="false">Count a room</button>
+    </div>
+    <button class="btn ghost" type="button" id="shuffle">Shuffle deck</button>
+  </div>
+
+  <div class="chips" id="chips" role="group" aria-label="Filter by topic"></div>
+
+  <section class="stage" id="stage" aria-live="polite">
+    <div class="card-top">
+      <span class="cat" id="cat"></span>
+      <span class="num" id="num"></span>
+    </div>
+    <p class="question" id="question"></p>
+
+    <div class="options">
+      <div class="opt" data-o="A" role="button" tabindex="0">
+        <span class="letter">A</span>
+        <span class="text" id="optA"></span>
+        <div class="bar"><span></span></div>
+        <div class="tally"><button type="button" data-d="-1" aria-label="Remove one vote for A">−</button><span class="count">0</span><button type="button" data-d="1" aria-label="Add one vote for A">+</button></div>
+      </div>
+      <span class="or">or</span>
+      <div class="opt" data-o="B" role="button" tabindex="0">
+        <span class="letter">B</span>
+        <span class="text" id="optB"></span>
+        <div class="bar"><span></span></div>
+        <div class="tally"><button type="button" data-d="-1" aria-label="Remove one vote for B">−</button><span class="count">0</span><button type="button" data-d="1" aria-label="Add one vote for B">+</button></div>
+      </div>
+    </div>
+
+    <div class="reflect" id="reflect">
+      <h3>Talk it through</h3>
+      <ul>
+        <li>What shaped your answer?</li>
+        <li>What would have to change for you to pick the other side?</li>
+        <li>Who in your community might answer differently, and why?</li>
+      </ul>
+    </div>
+
+    <div class="controls">
+      <button class="btn ghost" type="button" id="prev">← Back</button>
+      <span class="progress" id="progress"></span>
+      <button class="btn gold" type="button" id="next">Next card →</button>
+    </div>
+  </section>
+
+  <section class="summary" id="summary" aria-live="polite">
+    <h2 style="margin-top:0">Your choices</h2>
+    <p>Look back over your picks. Do you notice a pattern, such as always choosing speed, or always choosing the option with a person in the loop? Where did you break your own pattern, and why?</p>
+    <ol id="summaryList"></ol>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" type="button" id="copy">Copy my answers</button>
+      <button class="btn ghost" type="button" id="restart">Play again</button>
+    </div>
+  </section>
+
+  <div class="facilitate-wrap">
+    <h2>Running this with a group</h2>
+    <div class="facilitate">
+      <div>
+        <h3>In the room</h3>
+        <ol>
+          <li>Read the card aloud. Give everyone ten seconds to decide silently.</li>
+          <li>Have people move to the A or B side of the room, or raise hands. Switch to <strong>Count a room</strong> to tally on screen.</li>
+          <li>Ask one person from each side to explain their pick before anyone debates.</li>
+          <li>Invite anyone who wants to switch sides to say what moved them.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Keep it moving</h3>
+        <ul>
+          <li>Five or six cards fill about 30 minutes of discussion.</li>
+          <li>Use the topic filters to match your group: School for a student club, Infrastructure for a community meeting.</li>
+          <li>A close split is a good sign. It means the tradeoff is real.</li>
+          <li>Close by asking which card was hardest, and why.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Printable deck</h2>
+    <p>Prefer paper? Show every card on one page and print it.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn ghost" type="button" id="showAll">Show all cards</button>
+      <button class="btn ghost" type="button" onclick="window.print()">Print all cards</button>
+    </div>
+  </div>
+
+  <div class="all-cards" id="allCards"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="motto">Clear information. Meaningful participation.<br>Better decisions. Stronger communities.</div>
+    <div>ELM Lab · CEAMLS · Morgan State University<br>
+      <a href="https://shelley-neumeister.github.io/mdcgt-website/">Data Center Tracker</a> ·
+      <a href="https://shelley-neumeister.github.io/elm-fellows-website/">ELM Research Fellows</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Card text from the ELM "Would You Rather" deck (Equitable AI Community Conversations)
+  var CARDS = [
+    { n: 1,  cat: "Privacy",        q: "Would you rather use an AI assistant that…", a: "Remembers your preferences and past conversations", b: "Forgets everything when the conversation ends" },
+    { n: 2,  cat: "Privacy",        q: "Would you rather have an AI service that…", a: "Gives more personalized help using more of your data", b: "Uses less of your data but gives more general help" },
+    { n: 3,  cat: "Trust",          q: "Which AI answer would you rather receive?", a: "The more accurate answer, even if you cannot see how it was reached", b: "The easier-to-explain answer, even if it may be less accurate" },
+    { n: 4,  cat: "Trust",          q: "When AI is uncertain, would you rather it…", a: "Offer its best guess and clearly label the uncertainty", b: "Stop and say it does not know" },
+    { n: 5,  cat: "School",         q: "Which kind of tutoring would you rather have?", a: "An AI tutor available whenever you need it", b: "A human tutor once a week who gets to know you" },
+    { n: 6,  cat: "School",         q: "Would you rather your school…", a: "Use AI to spot patterns that may show a student needs help", b: "Rely on teachers, students, and families to raise concerns" },
+    { n: 7,  cat: "Health",         q: "When you have a health question, would you rather…", a: "Get immediate general guidance from an AI tool", b: "Wait to speak with a healthcare professional" },
+    { n: 8,  cat: "Health",         q: "Would you rather allow an AI health tool to…", a: "Review more of your records to look for hidden risks", b: "Review fewer records to protect more of your privacy" },
+    { n: 9,  cat: "Work",           q: "How would you rather have job applications reviewed?", a: "AI screens every application quickly using the same rules", b: "People review every application, even if the process takes longer" },
+    { n: 10, cat: "Work",           q: "Which workplace would you rather choose?", a: "A four-day workweek with AI handling some tasks", b: "A five-day workweek with people handling all tasks" },
+    { n: 11, cat: "Creativity",     q: "Which movie would you rather watch?", a: "A polished movie created mostly with AI", b: "A less polished movie created entirely by people" },
+    { n: 12, cat: "Creativity",     q: "Would you rather AI art tools…", a: "Offer a wide range of artistic styles", b: "Use an artist's style only with that artist's permission" },
+    { n: 13, cat: "Community",      q: "Would you rather your local government…", a: "Use AI to recommend decisions more quickly", b: "Take more time so residents can participate before decisions are made" },
+    { n: 14, cat: "Community",      q: "Who would you rather have recommend how public money is spent?", a: "An AI system that compares needs and likely results", b: "A group of residents and public officials" },
+    { n: 15, cat: "Public Safety",  q: "Which approach would you rather your community take?", a: "Use more cameras with AI to help investigate incidents", b: "Use fewer cameras to protect more personal privacy" },
+    { n: 16, cat: "Emergencies",    q: "Would you rather emergency agencies…", a: "Use more community data to predict where help may be needed", b: "Collect less data and respond when people request help" },
+    { n: 17, cat: "Infrastructure", q: "Would you rather your community…", a: "Welcome AI data centers with enforceable local benefits", b: "Limit data centers to reduce pressure on local resources" },
+    { n: 18, cat: "Infrastructure", q: "Who should pay for grid upgrades needed by a large new project?", a: "The project developer pays, even if construction moves more slowly", b: "Costs are shared when the upgrades will also benefit the public" },
+    { n: 19, cat: "The Future",     q: "Would you rather live in a community that…", a: "Adopts useful new AI tools early", b: "Waits to see how the tools affect other communities" },
+    { n: 20, cat: "The Future",     q: "Which future would you rather have?", a: "More powerful AI managed by a few large organizations", b: "Less powerful AI that communities can help govern" }
+  ];
+
+  var cats = ["All"];
+  CARDS.forEach(function (c) { if (cats.indexOf(c.cat) < 0) cats.push(c.cat); });
+
+  var state = { mode: "solo", filter: "All", order: CARDS.map(function (c) { return c.n; }), i: 0, picks: {}, tallies: {} };
+
+  function $(id) { return document.getElementById(id); }
+  function deck() {
+    return state.order
+      .map(function (n) { return CARDS[n - 1]; })
+      .filter(function (c) { return state.filter === "All" || c.cat === state.filter; });
+  }
+
+  // Topic chips
+  cats.forEach(function (c) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = c;
+    b.setAttribute("aria-pressed", c === "All" ? "true" : "false");
+    b.addEventListener("click", function () {
+      state.filter = c; state.i = 0;
+      document.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      showStage(); render();
+    });
+    $("chips").appendChild(b);
+  });
+
+  var optEls = document.querySelectorAll(".opt");
+
+  function render() {
+    var d = deck(), c = d[state.i];
+    if (!c) return;
+    $("cat").textContent = c.cat;
+    $("num").textContent = "CARD " + String(c.n).padStart(2, "0");
+    $("question").textContent = c.q;
+    $("optA").textContent = c.a;
+    $("optB").textContent = c.b;
+    $("progress").textContent = (state.i + 1) + " of " + d.length;
+    $("prev").disabled = state.i === 0;
+    $("prev").style.visibility = state.i === 0 ? "hidden" : "visible";
+    $("next").textContent = state.i === d.length - 1 ? (state.mode === "solo" ? "See my choices →" : "Finish") : "Next card →";
+
+    var pick = state.picks[c.n];
+    var t = state.tallies[c.n] || { A: 0, B: 0 };
+    var total = t.A + t.B;
+    optEls.forEach(function (el) {
+      var o = el.getAttribute("data-o");
+      el.classList.toggle("picked", state.mode === "solo" && pick === o);
+      el.classList.toggle("dim", state.mode === "solo" && !!pick && pick !== o);
+      el.setAttribute("aria-pressed", state.mode === "solo" && pick === o ? "true" : "false");
+      el.querySelector(".count").textContent = t[o];
+      el.querySelector(".bar span").style.width = total ? (100 * t[o] / total) + "%" : "0";
+    });
+    $("reflect").classList.toggle("show", state.mode === "group" || !!pick);
+  }
+
+  function choose(o) {
+    if (state.mode !== "solo") return;
+    var c = deck()[state.i];
+    state.picks[c.n] = o;
+    render();
+  }
+
+  optEls.forEach(function (el) {
+    el.addEventListener("click", function (e) {
+      if (e.target.closest(".tally")) return;
+      choose(el.getAttribute("data-o"));
+    });
+    el.addEventListener("keydown", function (e) {
+      if ((e.key === "Enter" || e.key === " ") && e.target === el) { e.preventDefault(); choose(el.getAttribute("data-o")); }
+    });
+    el.querySelectorAll(".tally button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var c = deck()[state.i], o = el.getAttribute("data-o");
+        var t = state.tallies[c.n] || (state.tallies[c.n] = { A: 0, B: 0 });
+        t[o] = Math.max(0, t[o] + Number(b.getAttribute("data-d")));
+        render();
+      });
+    });
+  });
+
+  // Mode toggle
+  document.querySelectorAll(".mode button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.mode = b.getAttribute("data-mode");
+      document.querySelectorAll(".mode button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      $("stage").classList.toggle("group", state.mode === "group");
+      optEls.forEach(function (el) { el.setAttribute("tabindex", state.mode === "solo" ? "0" : "-1"); });
+      showStage(); render();
+    });
+  });
+
+  function showStage() { $("stage").style.display = ""; $("summary").classList.remove("show"); }
+
+  $("prev").addEventListener("click", function () { if (state.i > 0) { state.i--; render(); } });
+  $("next").addEventListener("click", function () {
+    var d = deck();
+    if (state.i < d.length - 1) { state.i++; render(); }
+    else if (state.mode === "solo") { showSummary(); }
+    else { state.i = 0; render(); }
+  });
+
+  function showSummary() {
+    var list = $("summaryList"); list.innerHTML = "";
+    deck().forEach(function (c) {
+      var li = document.createElement("li");
+      var p = state.picks[c.n];
+      if (p) {
+        li.innerHTML = "<strong></strong> <span></span>";
+        li.firstChild.textContent = c.cat + ":";
+        li.lastChild.textContent = p === "A" ? c.a : c.b;
+      } else {
+        li.className = "skipped";
+        li.textContent = c.cat + ": skipped";
+      }
+      list.appendChild(li);
+    });
+    $("stage").style.display = "none";
+    $("summary").classList.add("show");
+    $("summary").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("restart").addEventListener("click", function () { state.picks = {}; state.i = 0; showStage(); render(); });
+  $("copy").addEventListener("click", function () {
+    var lines = deck().map(function (c) {
+      var p = state.picks[c.n];
+      return "Card " + c.n + " (" + c.cat + "): " + (p ? (p === "A" ? c.a : c.b) : "skipped");
+    });
+    var text = "My ELM Would You Rather choices\n" + lines.join("\n");
+    var btn = $("copy");
+    function done(msg) { btn.textContent = msg; setTimeout(function () { btn.textContent = "Copy my answers"; }, 2000); }
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { done("Copied"); }, function () { done("Copy failed"); });
+    else done("Copy not supported");
+  });
+
+  $("shuffle").addEventListener("click", function () {
+    var a = state.order.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    state.order = a; state.i = 0; showStage(); render();
+  });
+
+  // All cards (also the print view)
+  CARDS.forEach(function (c) {
+    var m = document.createElement("div"); m.className = "mini";
+    m.innerHTML = '<span class="cat"></span><h4></h4><p><b>A.</b> <span></span></p><p><b>B.</b> <span></span></p><p style="color:var(--muted);font-style:italic">Choose one. What shaped your answer?</p>';
+    m.querySelector(".cat").textContent = c.cat + " · Card " + c.n;
+    m.querySelector("h4").textContent = c.q;
+    var spans = m.querySelectorAll("p span");
+    spans[0].textContent = c.a; spans[1].textContent = c.b;
+    $("allCards").appendChild(m);
+  });
+  $("showAll").addEventListener("click", function () {
+    var g = $("allCards"), on = g.classList.toggle("show");
+    this.textContent = on ? "Hide all cards" : "Show all cards";
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

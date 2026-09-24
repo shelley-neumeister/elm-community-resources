@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citizens' Right to Understand · ELM Community Resources</title>
+<meta name="description" content="A six-step framework for following a public decision from first notice to real participation, walked through a Maryland data center case.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js" defer></script>
+<style>
+  .principle { background: var(--navy); color: #fff; border-radius: 20px; padding: 28px 24px; margin: 28px 0; box-shadow: var(--shadow); }
+  .principle .eyebrow { color: var(--gold); font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .principle blockquote { margin: 10px 0 0; font-family: "Oswald", sans-serif; font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.25; }
+
+  .gap { display: grid; grid-template-columns: 1fr; gap: 6px; max-width: 640px; margin: 18px 0; }
+  .gap div { border-radius: 10px; padding: 10px 14px; font-weight: 700; }
+  .gap .tech { background: var(--navy); color: #fff; width: 100%; }
+  .gap .space { border: 2px dashed var(--gold); color: var(--navy); text-align: center; background: rgba(233,185,73,.12); }
+  .gap .comm { background: var(--econ); color: #fff; width: 55%; }
+
+  .flow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 18px 0 8px; counter-reset: s; }
+  .flow a { position: relative; text-decoration: none; background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 12px 10px; text-align: center; color: var(--navy); font-weight: 700; }
+  .flow a::before { counter-increment: s; content: counter(s); display: block; font-family: "Oswald", sans-serif; font-size: 1.4rem; color: var(--gold); }
+  .flow a:hover { border-color: var(--navy); }
+  @media (max-width: 760px) { .flow { grid-template-columns: repeat(3, 1fr); } }
+
+  .case-head { background: var(--paper); border: 1px solid var(--line); border-left: 8px solid var(--econ); border-radius: 0 16px 16px 0; padding: 18px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .case-head p { margin-bottom: .5em; }
+
+  .stage { display: grid; grid-template-columns: 70px 1fr; gap: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin: 16px 0; box-shadow: var(--shadow); scroll-margin-top: 16px; }
+  .stage .n { font-family: "Oswald", sans-serif; font-size: 2.6rem; line-height: 1; color: var(--gold); text-align: center; }
+  .stage h3 { font-size: 1.5rem; margin-bottom: .1em; }
+  .stage .what { color: var(--muted); font-style: italic; margin-bottom: 14px; }
+  .stage .label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin: 14px 0 6px; }
+  .stage ul { margin: 0; padding-left: 1.2em; }
+  .stage li { margin: 4px 0; }
+  .ask { background: var(--cream); border-radius: 12px; padding: 12px 16px; margin-top: 14px; }
+  .ask b { color: var(--navy); }
+  @media (max-width: 600px) { .stage { grid-template-columns: 1fr; gap: 4px; } .stage .n { text-align: left; } }
+
+  .chip { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .08em; padding: 2px 7px; border-radius: 6px; vertical-align: 2px; margin-right: 4px; }
+  .chip.v { background: var(--navy); color: #fff; }
+  .chip.a { border: 1.5px solid var(--navy); color: var(--navy); }
+  .chip.u { border: 1.5px dashed var(--muted); color: var(--muted); }
+
+  .worksheet { background: var(--paper); border: 2px solid var(--navy); border-radius: 18px; padding: 22px; margin-top: 16px; }
+  .worksheet label { display: block; font-weight: 700; color: var(--navy); margin: 16px 0 4px; }
+  .worksheet label span { display: block; font-weight: 400; color: var(--muted); font-size: .95rem; }
+  .worksheet textarea, .worksheet input { font: inherit; font-size: 1rem; width: 100%; padding: 10px 12px; border-radius: 10px; border: 2px solid var(--line); background: #fff; }
+  @media print {
+    .site-header, .site-footer, .noprint { display: none !important; }
+    body { background: #fff; }
+    .stage, .case-head, .principle { box-shadow: none; break-inside: avoid; }
+    .worksheet textarea { border: 1px solid #999; min-height: 5em; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">ELM</span>
+      <span class="brand-text">Community Resources<small>Civic Governance Initiative</small></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="site-nav" id="nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="would-you-rather.html">Would You Rather</a></li>
+        <li><a href="simulator.html">Civic Simulator</a></li>
+        <li><a href="right-to-understand.html" aria-current="page">Right to Understand</a></li>
+        <li><a href="links.html">Helpful Links</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section style="padding-top:36px">
+    <h1>Citizens' Right to Understand</h1>
+    <p style="max-width:46em">Who gets to decide how new technologies affect a community? Decisions about AI systems and the infrastructure behind them are already being made in budgets, contracts, zoning votes, and agency agendas. This framework is a practical way to follow one of those decisions from first notice to real participation.</p>
+  </section>
+
+  <div class="principle">
+    <div class="eyebrow">The principle</div>
+    <blockquote>People affected by technological decisions should be able to understand those decisions in a meaningful way.</blockquote>
+  </div>
+
+  <h2>The gap we're trying to close</h2>
+  <p style="max-width:46em">Technology moves faster than most communities can follow it. The distance between the two is the <strong>civic capacity gap</strong>. Making documents public doesn't close it on its own. A 387-page technical study released ten days before a hearing is technically available and practically out of reach. What closes the gap is a community's ability to find decisions early, understand them, see who they affect, and act while the outcome can still change.</p>
+  <div class="gap" aria-hidden="true">
+    <div class="tech">Emerging technology →</div>
+    <div class="space">Civic capacity gap</div>
+    <div class="comm">Community understanding →</div>
+  </div>
+
+  <h2>The Participation Framework</h2>
+  <p style="max-width:46em">Six steps. You won't always move through them in order, and the last step feeds the first: what you learn changes what you watch for next time.</p>
+  <nav class="flow" aria-label="Framework steps">
+    <a href="#detect">Detect</a><a href="#translate">Translate</a><a href="#rules">Map Rights &amp; Rules</a><a href="#impacts">Map Impacts</a><a href="#act">Act</a><a href="#learn">Learn</a>
+  </nav>
+
+  <div class="case-head">
+    <p class="eyebrow" style="font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin:0 0 6px">Worked example</p>
+    <h3>Data centers in Prince George's County, Maryland</h3>
+    <p>In July 2026 the County Council adopted a two-year moratorium on data centers, the longest in the state. Three sites are already named: Landover Mall/Brightseat, Konterra in Laurel, and a study area in Brandywine. A pending bill, LDR-155, is the likely vehicle for eventually ending the pause.</p>
+    <p class="small muted" style="font-size:.92rem;margin:0">Case facts come from the <a href="https://shelley-neumeister.github.io/mdcgt-website/counties/pg.html">Maryland Data Center Governance Tracker</a>, current as of September 1, 2026. Labels show how solid each claim is: <span class="chip v">VERIFIED</span> from a primary or cited source, <span class="chip a">ASSESSMENT</span> our analysis, <span class="chip u">UNKNOWN</span> not established in public sources. Check the tracker for updates before you act.</p>
+  </div>
+
+  <section class="stage" id="detect">
+    <div class="n">1</div>
+    <div>
+      <h3>Detect</h3>
+      <p class="what">Notice a decision, policy, contract, or proposal that may affect your community, ideally before it's final.</p>
+      <div class="label">Where decisions show up</div>
+      <p>Budget line items, council and school board agendas, zoning applications, procurement contracts, executive orders, and state agency dockets. Most decisions surface in a document months before they reach the news.</p>
+      <div class="label">In the case</div>
+      <ul>
+        <li><span class="chip v">VERIFIED</span>Moratorium adopted July 7, 2026, backed by County Executive Order No. 1-2026.</li>
+        <li><span class="chip v">VERIFIED</span>LDR-155 is pending with no hearing date scheduled yet.</li>
+        <li><span class="chip a">ASSESSMENT</span>The next decision point isn't the moratorium, which is already law. It's LDR-155. That bill is the thing to watch.</li>
+      </ul>
+      <div class="ask"><b>Ask:</b> What's the next point where this decision can still change, and how will we know when it's coming?</div>
+    </div>
+  </section>
+
+  <section class="stage" id="translate">
+    <div class="n">2</div>
+    <div>
+      <h3>Translate</h3>
+      <p class="what">Turn technical, legal, and bureaucratic language into plain language that anyone affected can follow.</p>
+      <div class="label">In the case</div>
+      <ul>
+        <li><b>"Moratorium"</b> means a temporary pause. New data center approvals stop for a set time, usually while rules get written.</li>
+        <li><b>"Off-ramp"</b> means the rule that would end the pause. Whatever LDR-155 says becomes the rulebook for what comes next.</li>
+        <li><b>"By-right"</b> means a project that meets the written rules gets approved automatically, with no case-by-case hearing. <span class="chip a">ASSESSMENT</span> Whether LDR-155 creates by-right paths for some data centers is one of the key questions in the case.</li>
+      </ul>
+      <div class="ask"><b>Ask:</b> Could a neighbor, a student, or a grandparent explain in two sentences what this decision does? If not, translation is the first job.</div>
+    </div>
+  </section>
+
+  <section class="stage" id="rules">
+    <div class="n">3</div>
+    <div>
+      <h3>Map Rights &amp; Rules</h3>
+      <p class="what">Figure out which laws, policies, and procedures govern the decision, who holds authority, and what rights residents have in the process.</p>
+      <div class="label">In the case</div>
+      <ul>
+        <li><b>County Council</b> holds zoning authority. It passed the moratorium and will vote on LDR-155.</li>
+        <li><b>County Executive</b> issued a supporting executive order.</li>
+        <li><b>Water and sewer:</b> <span class="chip u">UNKNOWN</span> The position of WSSC, the regional water utility, on watershed impact isn't established in public sources.</li>
+        <li><b>Tax incentives:</b> <span class="chip v">VERIFIED</span> Exemptions passed in 2020 still shape the economics. At least one council member has said she wants them repealed, but no formal repeal bill has been confirmed.</li>
+        <li><b>Your rights:</b> Marylanders can request public records under the Maryland Public Information Act, and zoning bills go through public hearings.</li>
+      </ul>
+      <div class="ask"><b>Ask:</b> Who actually decides? What rules are they bound by? Where is the public guaranteed a say, and where isn't it?</div>
+    </div>
+  </section>
+
+  <section class="stage" id="impacts">
+    <div class="n">4</div>
+    <div>
+      <h3>Map Impacts</h3>
+      <p class="what">Work out who benefits, who carries the risk, and who's missing from the conversation.</p>
+      <div class="label">In the case</div>
+      <ul>
+        <li><span class="chip u">UNKNOWN</span> Water, grid, wastewater, and road capacity have not been established in public sources for any of the three sites.</li>
+        <li><span class="chip v">VERIFIED</span> About 46% of Maryland, including Prince George's, was in extreme drought in late June 2026.</li>
+        <li><span class="chip u">UNKNOWN</span> Jobs and tax revenue figures, plus site-level size and power use, aren't in the public record the tracker could find.</li>
+      </ul>
+      <p style="margin-top:12px">The gaps are a finding in their own right. When residents can't see capacity or benefit numbers, they're being asked to weigh a tradeoff with one side of the scale hidden.</p>
+      <div class="ask"><b>Ask:</b> Who benefits? Who bears the cost? Are they the same people? Who hasn't been asked?</div>
+    </div>
+  </section>
+
+  <section class="stage" id="act">
+    <div class="n">5</div>
+    <div>
+      <h3>Act</h3>
+      <p class="what">Use the formal channels for participation, oversight, and challenge.</p>
+      <div class="label">Pathways</div>
+      <p>Public comment and testimony, public records requests, advisory boards, contacting elected officials, organizing through civic associations or PTSAs, and elections.</p>
+      <div class="label">In the case</div>
+      <ul>
+        <li>Watch for the LDR-155 hearing notice and sign up to testify or submit written comments.</li>
+        <li>File a public records request for the missing site-level details and developer terms.</li>
+        <li>Ask WSSC directly for its assessment of watershed impact.</li>
+        <li>Ask your council member where they stand on by-right approvals and on the 2020 tax exemptions.</li>
+      </ul>
+      <div class="ask"><b>Ask:</b> Which action fits where the decision is right now? Testimony matters most before a vote. Records requests take time, so start early.</div>
+    </div>
+  </section>
+
+  <section class="stage" id="learn">
+    <div class="n">6</div>
+    <div>
+      <h3>Learn</h3>
+      <p class="what">Find out whether participation changed the outcome, and carry that forward.</p>
+      <div class="label">In the case</div>
+      <ul>
+        <li>After LDR-155 is voted on, compare the final text to what residents asked for. What changed and what didn't?</li>
+        <li>Compare with neighbors. <span class="chip v">VERIFIED</span> Howard County passed a 17-month moratorium and is staffing a task force to write rules before any proposal arrives. Harford passed a permanent ban whose legal durability is contested.</li>
+        <li>Record what you learned about timing, access, and who showed up, so the next decision is easier to follow.</li>
+      </ul>
+      <div class="ask"><b>Ask:</b> Did anyone's participation change anything? If not, where did the process close before the public got in?</div>
+    </div>
+  </section>
+
+  <h2>Try it on a decision near you</h2>
+  <p style="max-width:46em">Pick something happening in your school district, county, or state: a budget item, a new technology contract, a zoning proposal. Work through the six steps alone or with a group. Your notes stay on this page and aren't saved anywhere. Print it before you leave.</p>
+  <div class="worksheet">
+    <label>The decision<span>What is it, and where did you find it?</span><input type="text"></label>
+    <label>1 · Detect<span>What's the next point where it can still change? When is it?</span><textarea rows="2"></textarea></label>
+    <label>2 · Translate<span>Explain it in two plain sentences.</span><textarea rows="2"></textarea></label>
+    <label>3 · Map Rights &amp; Rules<span>Who decides? What rules apply? Where does the public get a say?</span><textarea rows="2"></textarea></label>
+    <label>4 · Map Impacts<span>Who benefits? Who bears the cost? Who's missing? What don't we know?</span><textarea rows="2"></textarea></label>
+    <label>5 · Act<span>One concrete step, who will take it, and by when.</span><textarea rows="2"></textarea></label>
+    <label>6 · Learn<span>How will you know whether it made a difference?</span><textarea rows="2"></textarea></label>
+    <div class="noprint" style="margin-top:18px"><button class="btn" type="button" onclick="window.print()">Print this page</button></div>
+  </div>
+
+  <div class="note">
+    <strong>Want to practice first?</strong> The <a href="simulator.html">Patuxent County Civic Simulator</a> puts these steps into a game. Its "What Didn't We Know?" challenge is about the Right to Understand.
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="motto">Clear information. Meaningful participation.<br>Better decisions. Stronger communities.</div>
+    <div>ELM Lab · CEAMLS · Morgan State University<br>
+      <a href="https://shelley-neumeister.github.io/mdcgt-website/">Data Center Tracker</a> ·
+      <a href="https://shelley-neumeister.github.io/elm-fellows-website/">ELM Research Fellows</a></div>
+  </div>
+</footer>
+</body>
+</html>

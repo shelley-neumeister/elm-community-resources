@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helpful Links · ELM Community Resources</title>
+<meta name="description" content="Infographics and trusted links for following Maryland decisions about data centers, energy, and AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/resources.js"></script>
+<style>
+  .igrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 16px 0; }
+  .ig { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+  .ig .thumb { display: block; background: #e9e3d4; aspect-ratio: 4 / 3; overflow: hidden; border-bottom: 1px solid var(--line); }
+  .ig .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; transition: transform .2s; }
+  .ig .thumb:hover img { transform: scale(1.03); }
+  .ig .thumb img.wide { object-fit: contain; object-position: center; }
+  .ig .body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+  .ig h3 { font-size: 1.25rem; }
+  .ig p { color: var(--muted); font-size: 1rem; flex: 1; }
+  .asof { display: inline-block; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--navy); background: var(--cream); border-radius: 6px; padding: 2px 8px; margin-bottom: 8px; }
+  .ig .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ig .btn { font-size: .95rem; padding: 8px 14px; }
+
+  .lgroup h2 { font-size: 1.35rem; margin: 28px 0 10px; }
+  .lcards { display: grid; gap: 12px; }
+  .lcard { display: block; text-decoration: none; color: inherit; background: var(--paper); border: 1px solid var(--line); border-left: 6px solid var(--gold); border-radius: 0 14px 14px 0; padding: 14px 18px; box-shadow: var(--shadow); }
+  .lcard:hover { border-left-color: var(--navy); }
+  .lcard b { color: var(--navy); font-size: 1.1rem; }
+  .lcard b::after { content: " ↗"; font-weight: 400; color: var(--muted); }
+  .lcard .src { display: block; font-size: .85rem; color: var(--green); font-weight: 700; margin: 2px 0 4px; }
+  .lcard span.why { color: var(--muted); font-size: 1rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">ELM</span>
+      <span class="brand-text">Community Resources<small>Civic Governance Initiative</small></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="site-nav" id="nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="would-you-rather.html">Would You Rather</a></li>
+        <li><a href="simulator.html">Civic Simulator</a></li>
+        <li><a href="right-to-understand.html">Right to Understand</a></li>
+        <li><a href="links.html" aria-current="page">Helpful Links</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section style="padding-top:36px">
+    <h1>Helpful Links</h1>
+    <p style="max-width:46em">Plain-language infographics you can print or share, and trusted places to follow decisions, understand your bill, and request public records. Some facts change quickly, so each infographic shows when its information was current.</p>
+  </section>
+
+  <h2>Infographics</h2>
+  <div class="igrid" id="infographics"></div>
+
+  <div id="links"></div>
+
+  <div class="note">
+    <strong>Know a resource that belongs here?</strong> This page grows over time. Send suggestions to the ELM Lab.
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="motto">Clear information. Meaningful participation.<br>Better decisions. Stronger communities.</div>
+    <div>ELM Lab · CEAMLS · Morgan State University<br>
+      <a href="https://shelley-neumeister.github.io/mdcgt-website/">Data Center Tracker</a> ·
+      <a href="https://shelley-neumeister.github.io/elm-fellows-website/">ELM Research Fellows</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  // Infographics
+  var ig = document.getElementById("infographics");
+  (window.INFOGRAPHICS || []).forEach(function (g) {
+    var card = el("article", "ig");
+    var a = el("a", "thumb"); a.href = g.pdf; a.target = "_blank"; a.rel = "noopener";
+    a.setAttribute("aria-label", "Open " + g.title + " (PDF)");
+    var img = el("img"); img.src = g.image; img.alt = "Preview of the infographic: " + g.title; img.loading = "lazy";
+    img.onload = function () { if (img.naturalWidth > img.naturalHeight * 1.34) img.className = "wide"; };
+    a.appendChild(img); card.appendChild(a);
+    var body = el("div", "body");
+    if (g.asOf) body.appendChild(el("span", "asof", "Current as of " + g.asOf));
+    body.appendChild(el("h3", null, g.title));
+    body.appendChild(el("p", null, g.summary));
+    var row = el("div", "row");
+    var open = el("a", "btn", "Open PDF"); open.href = g.pdf; open.target = "_blank"; open.rel = "noopener";
+    var dl = el("a", "btn ghost", "Download"); dl.href = g.pdf; dl.setAttribute("download", "");
+    row.appendChild(open); row.appendChild(dl); body.appendChild(row);
+    card.appendChild(body); ig.appendChild(card);
+  });
+
+  // Links, grouped in the order groups first appear
+  var box = document.getElementById("links"), groups = {}, order = [];
+  (window.LINKS || []).forEach(function (l) {
+    if (!groups[l.group]) { groups[l.group] = []; order.push(l.group); }
+    groups[l.group].push(l);
+  });
+  order.forEach(function (name) {
+    var sec = el("section", "lgroup");
+    sec.appendChild(el("h2", null, name));
+    var list = el("div", "lcards");
+    groups[name].forEach(function (l) {
+      var a = el("a", "lcard"); a.href = l.url; a.target = "_blank"; a.rel = "noopener";
+      a.appendChild(el("b", null, l.title));
+      if (l.source) a.appendChild(el("span", "src", l.source));
+      if (l.why) a.appendChild(el("span", "why", l.why));
+      list.appendChild(a);
+    });
+    sec.appendChild(list); box.appendChild(sec);
+  });
+})();
+</script>
+</body>
+</html>
